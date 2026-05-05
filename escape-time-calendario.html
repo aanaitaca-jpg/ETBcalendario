@@ -1,4 +1,5 @@
 
+
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -683,12 +684,16 @@ function updateStats() {
   document.getElementById('progressPct').textContent = pct + '%';
 }
 
-function toggleCard(day) {
-  state[day] = !state[day];
+function toggleCard(day, checked, card) {
+  state[day] = checked;
   saveState(state);
-  const card = document.querySelector(`.card[data-day="${day}"]`);
-  if (state[day]) card.classList.add('done');
-  else card.classList.remove('done');
+  if (checked) {
+    card.classList.add('done');
+  } else {
+    card.classList.remove('done');
+  }
+  const txt = card.querySelector('.check-text');
+  if (txt) txt.textContent = checked ? 'PUBLICADO' : 'MARCAR COMO PUBLICADO';
   updateStats();
 }
 
@@ -754,15 +759,20 @@ function renderPosts() {
           <div class="caption-box">${p.caption}<div class="hashtags">${p.hashtags.split(' ').join(' ')}<span class="cta-hash">E aí, vai encarar?! 🔐</span></div></div>
         </div>
         <div class="card-footer">
-          <label class="check-label" onclick="toggleCard(${dayNum})">
-            <input type="checkbox" ${isDone ? 'checked' : ''}>
+          <label class="check-label">
+            <input type="checkbox" ${isDone ? 'checked' : ''} data-day="${dayNum}">
             <div class="check-box"><span class="tick">✓</span></div>
             <span class="check-text">${isDone ? 'PUBLICADO' : 'MARCAR COMO PUBLICADO'}</span>
           </label>
         </div>
       `;
 
+      // Attach event after innerHTML is set
       grid.appendChild(card);
+      const cb = card.querySelector('input[type="checkbox"]');
+      cb.addEventListener('change', function() {
+        toggleCard(dayNum, this.checked, card);
+      });
     });
 
     container.appendChild(grid);
